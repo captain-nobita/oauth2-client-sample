@@ -31,7 +31,7 @@ public class TestService {
     }
     
     @Scheduled(cron = "${app.scheduler}")
-    @Async
+    @Async(value = "applicationTaskExecutor")
     public void autoGetDateUsingRestClient() {
         TestMsgRequest testMsgRequest = new TestMsgRequest();
         testMsgRequest.setClientDatetime(LocalDateTime.now());
