@@ -4,7 +4,7 @@
  */
 package com.captionnobita.oauth2.client.config;
 
-import com.captionnobita.oauth2.client.utils.LoggingRequestInterceptor;
+import com.captionnobita.oauth2.client.filter.LoggingRequestInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +22,9 @@ public class RestClientConfig {
     @Autowired
     private HttpComponentsClientHttpRequestFactory httpComponentsClientHttpRequestFactory;
     
+    @Autowired
+    private LoggingRequestInterceptor loggingRequestInterceptor;
+    
     @Bean
     public RestClient restClient(RestClient.Builder builder, OAuth2AuthorizedClientManager authorizedClientManager) {
 
@@ -31,7 +34,7 @@ public class RestClientConfig {
 
         return builder
                 .requestInterceptor(requestInterceptor)
-                .requestInterceptor(new LoggingRequestInterceptor())
+                .requestInterceptor(loggingRequestInterceptor)
                 .requestFactory(httpComponentsClientHttpRequestFactory)
                 .build();
     }

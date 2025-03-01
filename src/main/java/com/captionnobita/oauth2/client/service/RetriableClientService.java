@@ -18,8 +18,7 @@ package com.captionnobita.oauth2.client.service;
 import com.captionnobita.oauth2.client.model.TestMsgRequest;
 import com.captionnobita.oauth2.client.model.TestMsgResponse;
 import java.time.LocalDateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -37,10 +36,8 @@ import org.springframework.web.client.RestClientResponseException;
  * @author Nguyen Xuan Huy <huynx@napas.com.vn>
  */
 @Service
+@Slf4j
 public class RetriableClientService {
-
-    private Logger log = LoggerFactory.getLogger(this.getClass().getName());
-
     @Autowired
     private RestClient restClient;
 
