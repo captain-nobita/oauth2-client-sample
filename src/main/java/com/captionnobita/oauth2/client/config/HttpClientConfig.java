@@ -15,13 +15,16 @@ import org.apache.hc.client5.http.ConnectionKeepAliveStrategy;
 import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.impl.routing.DefaultProxyRoutePlanner;
 import org.apache.hc.client5.http.io.HttpClientConnectionManager;
 import org.apache.hc.client5.http.ssl.DefaultClientTlsStrategy;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.apache.hc.core5.http.HeaderElement;
 import org.apache.hc.core5.http.HeaderElements;
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.message.MessageSupport;
 import org.apache.hc.core5.http.protocol.HttpContext;
@@ -54,6 +57,15 @@ public class HttpClientConfig {
 
     @Value("${http.keep-alive-duration:5}")
     private int forceKeepAliveDuration;
+    
+    @Value("${http.proxy-host:localhost}")
+    private String proxyHost;
+    
+    @Value("${http.proxy-port:8086}")
+    private int proxyPort;
+    
+    @Value("${http.enable-proxy:true}")
+    private boolean enableProxy;
     
     @Bean
     public HttpComponentsClientHttpRequestFactory httpComponentsClientHttpRequestFactory() {
@@ -104,12 +116,19 @@ public class HttpClientConfig {
                 return TimeValue.ofSeconds(forceKeepAliveDuration);
             }
         };
-
-        CloseableHttpClient httpClient = HttpClients.custom()
+        
+        HttpClientBuilder httpClientBuilder = HttpClients.custom()
                 .setConnectionManager(connectionManager)
                 .setDefaultRequestConfig(RequestConfig.DEFAULT)
-                .setKeepAliveStrategy(myStrategy)
-                .build();
+                .setKeepAliveStrategy(myStrategy);
+        
+        if(enableProxy) {
+            HttpHost proxy = new HttpHost(proxyHost, proxyPort);
+            DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
+            httpClientBuilder.setRoutePlanner(routePlanner);
+        }
+
+        CloseableHttpClient httpClient = httpClientBuilder.build();
 
         HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
         factory.setHttpClient(httpClient);
